@@ -17,8 +17,7 @@
 ---
 ---
 ### Key Points
-- Analysis based on comparison with character with most amount of appearances (provided stats are comparable) 
-and stat disribution (in %) after normalizing data and averaging
+- Analysis based on comparison with character with most amount of appearances (provided stats are comparable) and stat disribution (in %) after normalizing data and averaging
 - Use base stats from joining time
 - Include DLC and other means outside of strict base game availability
 - No spin-offs (except FEH)
