@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from math import ceil
 from numpy import array
 from pandas import DataFrame
 from torch import tensor, sqrt, sort
@@ -135,7 +136,7 @@ class CharacterStatsAnalysis():
                 exc: Exception
         """
         try:
-            fig, axes = plt.subplots(nrows=5, ncols=4, figsize=(12,12), layout="constrained", facecolor="lightgrey")
+            fig, axes = plt.subplots(nrows=ceil(_self.stat_percentage.shape[0] / 4), ncols=4, figsize=(12,12), layout="constrained", facecolor="lightgrey")
 
             for i, ax in enumerate(axes.flat):
                 if i >= len(_self.stat_percentage):
