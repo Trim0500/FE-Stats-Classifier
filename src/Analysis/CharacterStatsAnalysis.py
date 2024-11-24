@@ -5,6 +5,26 @@ from torch import tensor, sqrt, sort
 from StatsTableSingleton import StatsTableSingleton
 
 class CharacterStatsAnalysis():
+    """
+        Class that abstracts the statistical and analytical procedures for the character stat line.
+
+        Class Members: 
+            stats_names: List representing the stat labels to use in plots
+            stats_colors: List representing the stat label colors to use in plots
+        
+        Instance Members: 
+            tensor_device: String representing the hardware device to run tensors on
+            character_name: String representing the character name for filtering
+            index_labels: List representing the game entries for the character
+            stats_table: StatsTableSingleton instance representing the "database" connection to retrieve data
+            filtered_stats_dataframe: DataFrame instance representing the complete stat line table for the character
+            stats: Tensor instance representing the complete stat line floating point data from the table
+            normalized_stats: Tensor instance representing the normalized stat lines
+            ave_stats: Tensor instance representing the normalized average stat line
+            stat_percentage: Tensor instance representing the percentage distribution of the stat lines by row
+        
+    """
+
     stats_names = ["HP","Atk","Skl","Spd","Lck","Def","Res"]
     stats_colors = ["darkorange","darkred","darkblue","darkgreen","gold","#cccc00","royalblue"]
 

@@ -19,6 +19,11 @@ class StatsTableSingletonMeta(type):
             return cls._instances[cls]
     
 class StatsTableSingleton(metaclass=StatsTableSingletonMeta):
+    """
+        Class that abstracts the "database" connection through the singleton pattern.\n
+        Points to the `FE_Stats_Data.csv` file located in the `Data` directory.
+    """
+
     def get_stats_by_name(_self, _character_name: str, _index_labels: list) -> DataFrame:
         """
             Method to slice the dataframe based on character name.
@@ -34,7 +39,7 @@ class StatsTableSingleton(metaclass=StatsTableSingletonMeta):
             Raises:
                 exc: Exception
         """
-        stat_lines_dataframe = read_csv("../Data/FE_Stats_Data.csv")
+        stat_lines_dataframe = read_csv("Data/FE_Stats_Data.csv")
         # [FE Stats Classifier/FE_Stats_Data_Analysis]: If NaN is found, means we shouldn't include that rows value in calculations later. 
         # So replace with a sentinel value.
         stat_lines_dataframe.fillna(-99, inplace=True)
