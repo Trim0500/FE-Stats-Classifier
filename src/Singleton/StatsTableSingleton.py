@@ -1,9 +1,6 @@
 from pandas import DataFrame, read_csv
 from typing import Any
 
-def do_something():
-    print("Did something...")
-
 class StatsTableSingletonMeta(type):
     instance = {}
 
