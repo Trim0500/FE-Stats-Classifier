@@ -45,11 +45,11 @@ class StatsTableSingleton(metaclass=StatsTableSingletonMeta):
         stat_lines_dataframe.fillna(-99, inplace=True)
         # [FE Stats Classifier/FE_Stats_Data_Analysis]: Ensure all numeric columns are ints for consistency
         stat_lines_dataframe = stat_lines_dataframe.astype({ "skl": int, "lck": int })
-        filtered_stat_lines_dataframe = stat_lines_dataframe[stat_lines_dataframe.character.__eq__(_character_name)]
+        filtered_stat_lines_dataframe = stat_lines_dataframe[stat_lines_dataframe.character.__eq__(_character_name)].reset_index()
         # [FE Stats Classifier/FE_Stats_Data_Analysis]: Drop last column as it doesn't matter here
         # [FE Stats Classifier/FE_Stats_Data_Analysis]: No need for the character column after filter
-        filtered_stat_lines_dataframe = filtered_stat_lines_dataframe.drop(["character","label"], axis=1)
-        
+        filtered_stat_lines_dataframe = filtered_stat_lines_dataframe.drop(["index","character","label"], axis=1)
+
         index_dict = {}
 
         for i in filtered_stat_lines_dataframe.index:

@@ -87,7 +87,7 @@ class CharacterStatsAnalysis():
         try:
             plt.figure(figsize=(9,9), facecolor="lightgrey")
 
-            patches, texts, pcts = plt.pie(_self.ave_stats.cpu(),
+            patches, texts, pcts = plt.pie(abs(_self.ave_stats).cpu(),
                                             counterclock=False,
                                             startangle=90,
                                             colors=CharacterStatsAnalysis.stats_colors,
