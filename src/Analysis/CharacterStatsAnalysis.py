@@ -22,7 +22,6 @@ class CharacterStatsAnalysis():
             stats: Tensor instance representing the complete stat line floating point data from the table
             normalized_stats: Tensor instance representing the normalized stat lines
             ave_stats: Tensor instance representing the normalized average stat line
-            stat_percentage: Tensor instance representing the percentage distribution of the stat lines by row
         
     """
 
@@ -38,7 +37,6 @@ class CharacterStatsAnalysis():
         _self.stats = tensor([])
         _self.normalized_stats = tensor([])
         _self.ave_stats = tensor([])
-        _self.stat_percentage = tensor([])
 
     def filter_dataframe(_self) -> None:
         """
@@ -113,29 +111,6 @@ class CharacterStatsAnalysis():
         except Exception as exc:
             print(f"[FE_Stats_Data_Analysis/plot_ave_stat_distribution]: {str(exc)}")
 
-    def process_percentage_tensor(_self) -> None:
-        """
-            Method to utilize the stats of a character across game appearences to determine percentage distribution.
-            Note: Some game appearences don't always have values for specific stats, so totals are affected.
-
-            Raises:
-                exc: Exception
-        """
-        try:
-            mask = _self.normalized_stats > -90.0
-            stat_totals = (_self.normalized_stats * mask).sum(dim=1)
-
-            percs = []
-
-            for i in range(len(_self.normalized_stats)):
-                buffer = _self.normalized_stats[i]
-                buffer[buffer < -90.0] = 0.0
-                percs.append(((abs(buffer) / stat_totals[i]) * 100).tolist())
-
-            _self.stat_percentage = tensor(percs, device=_self.tensor_device)
-        except Exception as exc:
-            print(f"[FE_Stats_Data_Analysis/process_percentage_tensor]: {str(exc)}")
-
     def plot_all_percentage_stat_lines(_self) -> None:
         """
             Method to visualize all normalized stat lines for a particular character through a pie plot.
@@ -144,20 +119,20 @@ class CharacterStatsAnalysis():
                 exc: Exception
         """
         try:
-            fig, axes = plt.subplots(nrows=ceil(_self.stat_percentage.shape[0] / 4), ncols=4, figsize=(12,12), layout="constrained", facecolor="lightgrey")
+            fig, axes = plt.subplots(nrows=ceil(_self.stats.shape[0] / 4), ncols=4, figsize=(12,12), layout="constrained", facecolor="lightgrey")
 
             for i, ax in enumerate(axes.flat):
-                if i >= len(_self.stat_percentage):
+                if i >= len(_self.stats):
                     break
 
-                buffer = _self.stat_percentage[i].cpu().to(int)
+                buffer = _self.stats[i].cpu().to(int)
 
                 name_buffer = array(CharacterStatsAnalysis.stats_names)
 
                 color_buffer = array(CharacterStatsAnalysis.stats_colors)
 
-                if (buffer == 0).sum() > 0:
-                    match_indices = (buffer != 0).nonzero().view(-1)
+                if ((buffer == -99) | (buffer == 0)).sum() > 0:
+                    match_indices = ((buffer != -99) & (buffer != 0)).nonzero().view(-1)
                     buffer = buffer[match_indices.numpy()]
 
                     name_buffer = name_buffer[match_indices.numpy()]
