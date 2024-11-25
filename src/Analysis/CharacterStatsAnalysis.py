@@ -88,11 +88,19 @@ class CharacterStatsAnalysis():
         try:
             plt.figure(figsize=(9,9), facecolor="lightgrey")
 
-            patches, texts, pcts = plt.pie(abs(_self.ave_stats).cpu(),
+            ave_stats, indices = sort(_self.ave_stats, descending=True)
+
+            names = array(CharacterStatsAnalysis.stats_names)
+            names = names[indices.cpu()]
+            
+            colors = array(CharacterStatsAnalysis.stats_colors)
+            colors = colors[indices.cpu()]
+
+            patches, texts, pcts = plt.pie(abs(ave_stats).cpu(),
                                             counterclock=False,
                                             startangle=90,
-                                            colors=CharacterStatsAnalysis.stats_colors,
-                                            labels=CharacterStatsAnalysis.stats_names,
+                                            colors=colors,
+                                            labels=names,
                                             autopct="%1.1f%%",
                                             textprops={ "size": "larger", "fontweight": "bold" },
                                             wedgeprops={ "linewidth": 1.5, "edgecolor": "white" },
@@ -157,6 +165,10 @@ class CharacterStatsAnalysis():
                     color_buffer = color_buffer[match_indices.numpy()]
                 
                 buffer, indices = sort(buffer, descending=True)
+
+                name_buffer = name_buffer[indices]
+                
+                color_buffer = color_buffer[indices]
 
                 patches, texts, pcts = ax.pie(buffer,
                                                 counterclock=False,
