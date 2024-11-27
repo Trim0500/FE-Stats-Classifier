@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from math import ceil
 from numpy import array
 from pandas import DataFrame
-from torch import tensor, sqrt, sort
+from torch import tensor, sqrt, sort, abs
 from StatsTableSingleton import StatsTableSingleton
 
 class CharacterStatsAnalysis():
@@ -60,8 +60,22 @@ class CharacterStatsAnalysis():
                 exc: Exception
         """
         try:
-            mask = _self.stats != -99
-            mean_tensor = (_self.stats * mask).sum(dim=0) / mask.sum(dim=0)
+            """
+                Run a check first to see if we even should normalize. 
+                Get the mean of the each stat first, if about 80% of the values don't go beyond a tolerance threashold of 2.0, just average up the stats instead.
+                Note: Watch for sentinel values.
+            """
+
+            sentinel_mask = _self.stats != -99
+            masked_stats_tensor = _self.stats * sentinel_mask
+            mean_tensor = (masked_stats_tensor).sum(dim=0) / sentinel_mask.sum(dim=0)
+            threshold_mask = (abs(masked_stats_tensor - mean_tensor) <= 2.0) | (abs(masked_stats_tensor - mean_tensor) == mean_tensor)
+            if threshold_mask.sum() >= round((_self.stats.shape[0] * _self.stats.shape[1]) * 0.8, 0):
+                _self.normalized_stats = _self.stats
+                
+                _self.ave_stats = mean_tensor
+
+                return
 
             std_list = []
 
@@ -72,7 +86,7 @@ class CharacterStatsAnalysis():
 
             std_tensor = tensor(std_list, device=_self.tensor_device)
             _self.normalized_stats = _self.stats - mean_tensor / std_tensor
-            _self.ave_stats = (_self.normalized_stats * mask).sum(dim=0) / mask.sum(dim=0)
+            _self.ave_stats = (_self.normalized_stats * sentinel_mask).sum(dim=0) / sentinel_mask.sum(dim=0)
         except Exception as exc:
             print(f"[CharacterStatsAnalysis/normalize_stats]: {str(exc)}")
 
