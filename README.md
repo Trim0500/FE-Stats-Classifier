@@ -79,6 +79,6 @@
 ---
 ---
 ### Legal
-- This project is a non-profit, informational experiment. *Fire Emblem* and all its related material are copyrighted by Nintendo/Intelligent Systems. This project is in no way affiliated or related to either of the companies.
+- This project is a non-profit, informational data analysis experiment. *Fire Emblem* and all its related material are copyrighted by Nintendo/Intelligent Systems. This project is in no way affiliated or related to either of the companies.
 ---
 ---
