@@ -83,4 +83,7 @@ def run_train_forward_pytorch(_model:nn.Module,
         
         val_accs.append(total_val_acc / num_val_batches)
 
+        if len(val_losses) >= 2 and  val_losses[-1] >= val_losses[-2]:
+            break
+
     return { "train_losses": train_losses,"train_accs": train_accs,"val_losses":val_losses,"val_accs":val_accs }
