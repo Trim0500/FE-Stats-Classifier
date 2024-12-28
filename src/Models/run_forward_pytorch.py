@@ -23,9 +23,9 @@ def run_train_forward_pytorch(_model:nn.Module,
 
     if _hyperparameters["optim_name"].__eq__("adam"):
         optimizer = optim.Adam(_model.parameters(), _hyperparameters["lr"], _hyperparameters["betas"], _hyperparameters["eps"], _hyperparameters["weight_decay"])
-    elif _hyperparameters["rmsprop"]:
+    elif _hyperparameters["optim_name"].__eq__("rmsprop"):
         optimizer = optim.RMSprop(_model.parameters(), _hyperparameters["lr"], _hyperparameters["alpha"], _hyperparameters["eps"], _hyperparameters["weight_decay"])
-    elif _hyperparameters["momentum"]:
+    elif _hyperparameters["optim_name"].__eq__("momentum"):
         optimizer = optim.SGD(_model.parameters(),
                               _hyperparameters["lr"],
                               _hyperparameters["momentum"],
