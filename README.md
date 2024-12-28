@@ -61,6 +61,23 @@
 - FEH [Base, Brave]
 ---
 ---
+### Model Algorithms Used
+- Vanilla MLP (Multi-Layered Perceptron)
+- CNN (Convolutional Neural Network)
+- SVM (Support Vector Machine)
+- Random Forest
+---
+---
+### Model Algorithms Excluded
+- RNN (Recurrent Neural Network, not temporal data)
+- LSTM (Long Short-Term Memory, no need for memory)
+- Transformers (Not efficient)
+- Linear Regression (Not real number values)
+- Logistic Regression (Not binary classification)
+- Decision Tree (Not sophisticated enough)
+- Naive Bayes (Not sophisticated enough)
+---
+---
 ### Data Sources
 - [Serenes Forest](https://serenesforest.net)
   - [FE1 Stats](https://serenesforest.net/shadow-dragon-and-blade-of-light/characters/base-stats/)
