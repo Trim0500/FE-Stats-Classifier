@@ -46,7 +46,7 @@ def run_train_forward_pytorch(_model:nn.Module,
         total_train_acc = 0.0
 
         for train_data, train_label in _train_dataloader:
-            train_data, train_label = train_data.to(_accel_device), train_label.to(device=_accel_device)
+            train_data, train_label = train_data.to(_accel_device), train_label.to(device=_accel_device, dtype=torch.int64)
 
             optimizer.zero_grad()
 
@@ -60,10 +60,6 @@ def run_train_forward_pytorch(_model:nn.Module,
 
             optimizer.step()
 
-            break
-
-        break
-
         train_losses.append(total_train_loss / num_train_batches)
         
         train_accs.append(total_train_acc / num_train_batches)
@@ -75,7 +71,7 @@ def run_train_forward_pytorch(_model:nn.Module,
         total_val_acc = 0.0
 
         for val_data, val_label in _val_dataloader:
-            val_data, val_label = val_data.to(_accel_device), val_label.to(_accel_device)
+            val_data, val_label = val_data.to(_accel_device), val_label.to(device=_accel_device, dtype=torch.int64)
 
             val_output = _model(val_data)
             val_loss = F.cross_entropy(val_output, val_label)
@@ -87,6 +83,8 @@ def run_train_forward_pytorch(_model:nn.Module,
         val_losses.append(total_val_loss / num_val_batches)
         
         val_accs.append(total_val_acc / num_val_batches)
+
+        print(f"[INFO] Epoch {epoch}/{_num_epochs}: Train/Validation loss = {train_losses[-1]:.4f}/{val_losses[-1]:.4f}, train/validation accuracy = {train_accs[-1]:.2f}%/{val_accs[-1]:.2f}%\n")
 
         if len(val_losses) >= 2 and  val_losses[-1] >= val_losses[-2]:
             break
