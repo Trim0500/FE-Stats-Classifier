@@ -58,3 +58,10 @@ class StatsTableSingleton(metaclass=StatsTableSingletonMeta):
         filtered_stat_lines_dataframe = filtered_stat_lines_dataframe.rename(index=index_dict)
 
         return filtered_stat_lines_dataframe
+    
+    def get_all_stats(_self) -> DataFrame:
+        stat_lines_dataframe = read_csv("Data/FE_Stats_Data.csv")
+        stat_lines_dataframe.fillna(-99, inplace=True)
+        stat_lines_dataframe = stat_lines_dataframe.astype({ "skl": int, "lck": int })
+
+        return stat_lines_dataframe
