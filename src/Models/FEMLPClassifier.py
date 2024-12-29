@@ -9,7 +9,7 @@ class FEMLPClassifier(nn.Module):
         _self.leaky_relu = nn.LeakyReLU()
         _self.linears = nn.ModuleList()
 
-        for i in range(len(_depth)):
+        for i in range(_depth):
             _self.linears.append(nn.Linear(_width, _width, device=_accel_device, dtype=_dtype))
 
         _self.out_layer = nn.Linear(_width, _num_classes)
