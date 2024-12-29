@@ -12,7 +12,7 @@ class FEMLPClassifier(nn.Module):
         for i in range(_depth):
             _self.linears.append(nn.Linear(_width, _width, device=_accel_device, dtype=_dtype))
 
-        _self.out_layer = nn.Linear(_width, _num_classes)
+        _self.out_layer = nn.Linear(_width, _num_classes, device=_accel_device, dtype=_dtype)
 
     def forward(_self, x:torch.Tensor) -> torch.Tensor:
         x = _self.in_layer(x)
