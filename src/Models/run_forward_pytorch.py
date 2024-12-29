@@ -53,12 +53,13 @@ def run_train_forward_pytorch(_model:nn.Module,
             train_output = _model(train_data)
             train_loss = F.cross_entropy(train_output, train_label)
             train_loss.backward()
-            total_train_loss += train_loss.item()
-
-            train_predictions = torch.argmax(F.softmax(train_output, 1, _dtype), 1)
-            total_train_acc += (train_predictions == train_label).sum().item()
 
             optimizer.step()
+
+            total_train_loss += train_loss.item()
+
+            train_predictions = torch.argmax(F.softmax(train_output, 1, _dtype), 1).to(torch.int64).view(-1)
+            total_train_acc += ((train_predictions == train_label).sum() / len(train_label)).item() * 100
 
         train_losses.append(total_train_loss / num_train_batches)
         
@@ -77,8 +78,8 @@ def run_train_forward_pytorch(_model:nn.Module,
             val_loss = F.cross_entropy(val_output, val_label)
             total_val_loss += val_loss.item()
 
-            val_predictions = torch.argmax(torch.softmax(val_output, 1, _dtype), 1)
-            total_val_acc += (val_predictions == val_label).sum().item()
+            val_predictions = torch.argmax(torch.softmax(val_output, 1, _dtype), 1).to(torch.int64).view(-1)
+            total_val_acc += ((val_predictions == val_label).sum() / len(val_label)).item() * 100
 
         val_losses.append(total_val_loss / num_val_batches)
         
