@@ -38,7 +38,7 @@ def run_train_forward_pytorch(_model:nn.Module,
     
     num_val_batches = len(_val_dataloader)
 
-    for epoch in range(len(_num_epochs)):
+    for epoch in range(_num_epochs):
         _model.train()
 
         total_train_loss = 0.0
@@ -46,18 +46,23 @@ def run_train_forward_pytorch(_model:nn.Module,
         total_train_acc = 0.0
 
         for train_data, train_label in _train_dataloader:
-            train_data, train_label = train_data.to(_accel_device), train_label.to(_accel_device)
+            train_data, train_label = train_data.to(_accel_device), train_label.to(device=_accel_device)
 
             optimizer.zero_grad()
 
             train_output = _model(train_data)
             train_loss = F.cross_entropy(train_output, train_label)
+            train_loss.backward()
             total_train_loss += train_loss.item()
 
-            train_predictions = torch.argmax(torch.softmax(train_output, 1, _dtype), 1)
+            train_predictions = torch.argmax(F.softmax(train_output, 1, _dtype), 1)
             total_train_acc += (train_predictions == train_label).sum().item()
 
             optimizer.step()
+
+            break
+
+        break
 
         train_losses.append(total_train_loss / num_train_batches)
         
