@@ -100,6 +100,8 @@ def run_train_forward_pytorch(_model:nn.Module,
 def run_predict_forward(_model:nn.Module, _dataloader:DataLoader, _accel_device:str="cpu", _dtype=torch.int64):
     predictions = []
 
+    labels = []
+
     for batch_data, batch_label in _dataloader:
         batch_data, batch_label = batch_data.to(_accel_device), batch_label.to(device=_accel_device, dtype=_dtype)
 
@@ -108,7 +110,10 @@ def run_predict_forward(_model:nn.Module, _dataloader:DataLoader, _accel_device:
         for prediction in batch_predictions:
             predictions.append(prediction.item())
 
-    return predictions
+        for label in batch_label:
+            labels.append(label.item())
+
+    return predictions, labels
 
 
 def show_analysis_charts(_losses:list, _accuracies:list, _val_losses:list=None, _val_accuracies:list=None, _mode_name:str="Training", _optimizer_name:str="SGD"):
