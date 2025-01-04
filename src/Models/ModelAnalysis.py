@@ -2,6 +2,9 @@ import torch
 import torch.optim as optim
 import torch.nn as nn
 import torch.nn.functional as F
+import matplotlib.pyplot as plt
+import numpy as np
+
 from torch.utils.data import DataLoader
 
 def run_train_forward_pytorch(_model:nn.Module,
@@ -91,3 +94,31 @@ def run_train_forward_pytorch(_model:nn.Module,
             break
 
     return { "train_losses": train_losses,"train_accs": train_accs,"val_losses":val_losses,"val_accs":val_accs }
+
+
+def show_analysis_charts(_losses:list, _accuracies:list, _val_losses:list=None, _val_accuracies:list=None, _mode_name:str="Training", _optimizer_name:str="SGD"):
+    plt.style.use('seaborn-v0_8-dark')
+
+    fig, (loss_ax, acc_ax) = plt.subplots(1, 2, figsize=(16,6))
+    loss_ax.plot(np.arange(1, len(_losses) + 1), _losses, label=_mode_name)
+    if _val_losses != None:
+        loss_ax.plot(np.arange(1, len(_val_losses) + 1), _val_losses, label="Validation")
+    loss_ax.set_xlabel(f"Epoch Iteration")
+    loss_ax.set_xticks(np.arange(1, len(_losses) + 1))
+    loss_ax.set_ylabel("Categorical Cross Entropy (CCE) loss")
+    loss_ax.set_title(f"{_mode_name} Epoch vs. Loss ({_optimizer_name})")
+    loss_ax.legend()
+    loss_ax.grid()
+
+    acc_ax.plot(np.arange(1, len(_accuracies) + 1), _accuracies, label=_mode_name)
+    if _val_accuracies != None:
+        acc_ax.plot(np.arange(1, len(_val_accuracies) + 1), _val_accuracies, label="Validation")
+    acc_ax.set_xlabel(f"Epoch Iteration")
+    acc_ax.set_xticks(np.arange(1, len(_accuracies) + 1))
+    acc_ax.set_ylabel("Accuracy (in %)")
+    acc_ax.set_yticks(np.arange(0, 110, 10))
+    acc_ax.set_title(f"{_mode_name} Epoch vs. Accuracy ({_optimizer_name})")
+    acc_ax.legend()
+    acc_ax.grid()
+
+    plt.show()
