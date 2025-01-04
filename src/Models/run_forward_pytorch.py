@@ -78,14 +78,14 @@ def run_train_forward_pytorch(_model:nn.Module,
             val_loss = F.cross_entropy(val_output, val_label)
             total_val_loss += val_loss.item()
 
-            val_predictions = torch.argmax(torch.softmax(val_output, 1, _dtype), 1).to(torch.int64).view(-1)
+            val_predictions = torch.argmax(F.softmax(val_output, 1, _dtype), 1).to(torch.int64).view(-1)
             total_val_acc += ((val_predictions == val_label).sum() / len(val_label)).item() * 100
 
         val_losses.append(total_val_loss / num_val_batches)
         
         val_accs.append(total_val_acc / num_val_batches)
 
-        print(f"[INFO] Epoch {epoch}/{_num_epochs}: Train/Validation loss = {train_losses[-1]:.4f}/{val_losses[-1]:.4f}, train/validation accuracy = {train_accs[-1]:.2f}%/{val_accs[-1]:.2f}%\n")
+        print(f"[INFO] Epoch {epoch + 1}/{_num_epochs}: Train/Validation loss = {train_losses[-1]:.4f}/{val_losses[-1]:.4f}, train/validation accuracy = {train_accs[-1]:.2f}%/{val_accs[-1]:.2f}%\n")
 
         if len(val_losses) >= 2 and  val_losses[-1] >= val_losses[-2]:
             break

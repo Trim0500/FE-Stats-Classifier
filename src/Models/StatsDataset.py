@@ -5,7 +5,20 @@ from StatsTableSingleton import StatsTableSingleton
 class StatsDataset(Dataset):
     def __init__(_self, _accel_device:str="cpu", _dtype=torch.float32, _data_transform=None, target_transform=None):
         stats_dataframe = StatsTableSingleton().get_all_stats()
-        _self.stats_data = torch.Tensor(stats_dataframe.drop("character", axis=1).to_numpy()).to(device=_accel_device, dtype=_dtype)
+        lowest_label_count = stats_dataframe.groupby('label').character.count().sort_values().to_numpy()[0]
+
+        stats_data = None
+
+        for i in stats_dataframe.label.unique():
+            buffer_dataframe = stats_dataframe[i == stats_dataframe.label]
+            label_samples = torch.Tensor(buffer_dataframe.sample(lowest_label_count, random_state=42).drop("character", axis=1).to_numpy()).to(device=_accel_device, dtype=_dtype)
+
+            if stats_data != None:
+                stats_data = torch.vstack((stats_data, label_samples))
+            else:
+                stats_data = label_samples
+                
+        _self.stats_data = stats_data
         _self.transform = _data_transform
         _self.target_transform = target_transform
 
