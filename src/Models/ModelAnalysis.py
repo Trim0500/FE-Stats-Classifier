@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import numpy as np
+import sklearn.metrics as skmetrics
 
 from torch.utils.data import DataLoader
 
@@ -96,13 +97,30 @@ def run_train_forward_pytorch(_model:nn.Module,
     return { "train_losses": train_losses,"train_accs": train_accs,"val_losses":val_losses,"val_accs":val_accs }
 
 
+def run_predict_forward(_model:nn.Module, _dataloader:DataLoader, _accel_device:str="cpu", _dtype=torch.int64):
+    predictions = []
+
+    for batch_data, batch_label in _dataloader:
+        batch_data, batch_label = batch_data.to(_accel_device), batch_label.to(device=_accel_device, dtype=_dtype)
+
+        output = _model(batch_data)
+        batch_predictions = torch.argmax(F.softmax(output, 1, _dtype), 1).to(torch.int64).view(-1)
+        for prediction in batch_predictions:
+            predictions.append(prediction.item())
+
+    return predictions
+
+
 def show_analysis_charts(_losses:list, _accuracies:list, _val_losses:list=None, _val_accuracies:list=None, _mode_name:str="Training", _optimizer_name:str="SGD"):
     plt.style.use('seaborn-v0_8-dark')
 
     fig, (loss_ax, acc_ax) = plt.subplots(1, 2, figsize=(16,6))
+
     loss_ax.plot(np.arange(1, len(_losses) + 1), _losses, label=_mode_name)
+
     if _val_losses != None:
         loss_ax.plot(np.arange(1, len(_val_losses) + 1), _val_losses, label="Validation")
+
     loss_ax.set_xlabel(f"Epoch Iteration")
     loss_ax.set_xticks(np.arange(1, len(_losses) + 1))
     loss_ax.set_ylabel("Categorical Cross Entropy (CCE) loss")
@@ -111,8 +129,10 @@ def show_analysis_charts(_losses:list, _accuracies:list, _val_losses:list=None, 
     loss_ax.grid()
 
     acc_ax.plot(np.arange(1, len(_accuracies) + 1), _accuracies, label=_mode_name)
+
     if _val_accuracies != None:
         acc_ax.plot(np.arange(1, len(_val_accuracies) + 1), _val_accuracies, label="Validation")
+
     acc_ax.set_xlabel(f"Epoch Iteration")
     acc_ax.set_xticks(np.arange(1, len(_accuracies) + 1))
     acc_ax.set_ylabel("Accuracy (in %)")
@@ -122,3 +142,25 @@ def show_analysis_charts(_losses:list, _accuracies:list, _val_losses:list=None, 
     acc_ax.grid()
 
     plt.show()
+
+
+def show_metrics(_all_preds:list, _all_labels:list, label_names:str, _val_preds:list=None, _val_labels:list=None, _mode_name:str="Training"):
+    print(f"[INFO] {_mode_name} Classification Report:")
+    print(skmetrics.classification_report(_all_labels, _all_preds, target_names=label_names))
+    
+    if _val_preds != None and _val_labels != None:
+        print(f"[INFO] Validation Classification Report:")
+        print(skmetrics.classification_report(_val_labels, _val_preds, target_names=label_names))
+
+    print(f"[INFO] {_mode_name} Confusion Matrix:")
+    matrix = skmetrics.ConfusionMatrixDisplay(skmetrics.confusion_matrix(_all_labels, _all_preds), display_labels=label_names)
+    matrix.plot()
+
+    plt.show()
+
+    if _val_preds != None and _val_labels != None:
+        print(f"[INFO] Validation Confusion Matrix:")
+        matrix = skmetrics.ConfusionMatrixDisplay(skmetrics.confusion_matrix(_val_labels, _val_preds), display_labels=label_names)
+        matrix.plot()
+
+        plt.show()
