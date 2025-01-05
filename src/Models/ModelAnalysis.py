@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas
 import sklearn.metrics as skmetrics
 
 from torch.utils.data import DataLoader
@@ -150,22 +151,30 @@ def show_analysis_charts(_losses:list, _accuracies:list, _val_losses:list=None, 
 
 
 def show_metrics(_all_preds:list, _all_labels:list, label_names:list, _val_preds:list=None, _val_labels:list=None, _mode_name:str="Training"):
+    full_label_names_series = pandas.Series(label_names)
+
+    class_indices = pandas.Series(list(set(_all_preds).union(_all_labels)))
+    data_label_names = full_label_names_series[class_indices].to_list()
+
+    val_class_indices = pandas.Series(list(set(_val_preds).union(_val_labels)))
+    val_label_names = full_label_names_series[val_class_indices].to_list()
+    
     print(f"[INFO] {_mode_name} Classification Report:")
-    print(skmetrics.classification_report(_all_labels, _all_preds, target_names=label_names, zero_division=0.0))
+    print(skmetrics.classification_report(_all_labels, _all_preds, target_names=data_label_names, zero_division=0.0))
     
     if _val_preds != None and _val_labels != None:
         print(f"[INFO] Validation Classification Report:")
-        print(skmetrics.classification_report(_val_labels, _val_preds, zero_division=0.0))
+        print(skmetrics.classification_report(_val_labels, _val_preds, target_names=val_label_names, zero_division=0.0))
 
     print(f"[INFO] {_mode_name} Confusion Matrix:")
-    matrix = skmetrics.ConfusionMatrixDisplay(skmetrics.confusion_matrix(_all_labels, _all_preds), display_labels=label_names)
+    matrix = skmetrics.ConfusionMatrixDisplay(skmetrics.confusion_matrix(_all_labels, _all_preds), display_labels=data_label_names)
     matrix.plot()
 
     plt.show()
 
     if _val_preds != None and _val_labels != None:
         print(f"[INFO] Validation Confusion Matrix:")
-        matrix = skmetrics.ConfusionMatrixDisplay(skmetrics.confusion_matrix(_val_labels, _val_preds))
+        matrix = skmetrics.ConfusionMatrixDisplay(skmetrics.confusion_matrix(_val_labels, _val_preds), display_labels=val_label_names)
         matrix.plot()
 
         plt.show()
