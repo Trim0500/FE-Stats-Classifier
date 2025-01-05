@@ -15,7 +15,7 @@ def run_train_forward_pytorch(_model:nn.Module,
                               _num_epochs:int,
                               _hyperparameters:dict,
                               _accel_device:str="cpu",
-                              _dtype=torch.float32) -> dict:
+                              _dtype:torch.dtype=torch.float32) -> dict:
     train_losses = []
 
     val_losses = []
@@ -98,21 +98,24 @@ def run_train_forward_pytorch(_model:nn.Module,
     return { "train_losses": train_losses,"train_accs": train_accs,"val_losses":val_losses,"val_accs":val_accs }
 
 
-def run_predict_forward(_model:nn.Module, _dataloader:DataLoader, _accel_device:str="cpu", _dtype=torch.int64):
+def run_predict_forward_pytorch(_model:nn.Module, _dataloader:DataLoader, _accel_device:str="cpu", _dtype:torch.dtype=torch.float32):
+    _model.eval()
+
     predictions = []
 
     labels = []
 
     for batch_data, batch_label in _dataloader:
-        batch_data, batch_label = batch_data.to(_accel_device), batch_label.to(device=_accel_device, dtype=_dtype)
+        batch_data, batch_label = batch_data.to(_accel_device), batch_label.to(device=_accel_device, dtype=torch.int64)
 
-        output = _model(batch_data)
-        batch_predictions = torch.argmax(F.softmax(output, 1, _dtype), 1).to(torch.int64).view(-1)
-        for prediction in batch_predictions:
-            predictions.append(prediction.item())
+        with torch.no_grad():
+            output = _model(batch_data)
+            batch_predictions = torch.argmax(F.softmax(output, 1, _dtype), 1).to(torch.int64).view(-1)
+            for prediction in batch_predictions:
+                predictions.append(prediction.item())
 
-        for label in batch_label:
-            labels.append(label.item())
+            for label in batch_label:
+                labels.append(label.item())
 
     return predictions, labels
 
@@ -156,16 +159,9 @@ def show_metrics(_all_preds:list, _all_labels:list, label_names:list, _val_preds
     class_indices = pandas.Series(list(set(_all_preds).union(_all_labels)))
     data_label_names = full_label_names_series[class_indices].to_list()
 
-    val_class_indices = pandas.Series(list(set(_val_preds).union(_val_labels)))
-    val_label_names = full_label_names_series[val_class_indices].to_list()
-    
     print(f"[INFO] {_mode_name} Classification Report:")
     print(skmetrics.classification_report(_all_labels, _all_preds, target_names=data_label_names, zero_division=0.0))
     
-    if _val_preds != None and _val_labels != None:
-        print(f"[INFO] Validation Classification Report:")
-        print(skmetrics.classification_report(_val_labels, _val_preds, target_names=val_label_names, zero_division=0.0))
-
     print(f"[INFO] {_mode_name} Confusion Matrix:")
     matrix = skmetrics.ConfusionMatrixDisplay(skmetrics.confusion_matrix(_all_labels, _all_preds), display_labels=data_label_names)
     matrix.plot()
@@ -173,6 +169,12 @@ def show_metrics(_all_preds:list, _all_labels:list, label_names:list, _val_preds
     plt.show()
 
     if _val_preds != None and _val_labels != None:
+        val_class_indices = pandas.Series(list(set(_val_preds).union(_val_labels)))
+        val_label_names = full_label_names_series[val_class_indices].to_list()
+
+        print(f"[INFO] Validation Classification Report:")
+        print(skmetrics.classification_report(_val_labels, _val_preds, target_names=val_label_names, zero_division=0.0))
+
         print(f"[INFO] Validation Confusion Matrix:")
         matrix = skmetrics.ConfusionMatrixDisplay(skmetrics.confusion_matrix(_val_labels, _val_preds), display_labels=val_label_names)
         matrix.plot()
