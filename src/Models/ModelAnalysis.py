@@ -105,7 +105,7 @@ def run_train_forward_pytorch(_model:nn.Module,
     return { "train_losses": train_losses,"train_accs": train_accs,"val_losses":val_losses,"val_accs":val_accs }
 
 
-def run_predict_forward_pytorch(_model:nn.Module, _dataloader:DataLoader, _accel_device:str="cpu", _dtype:torch.dtype=torch.float32):
+def run_predict_forward_pytorch(_model:nn.Module, _dataloader:DataLoader, _conv_reshape:bool=False, _accel_device:str="cpu", _dtype:torch.dtype=torch.float32):
     _model.eval()
 
     predictions = []
@@ -114,6 +114,9 @@ def run_predict_forward_pytorch(_model:nn.Module, _dataloader:DataLoader, _accel
 
     for batch_data, batch_label in _dataloader:
         batch_data, batch_label = batch_data.to(_accel_device), batch_label.to(device=_accel_device, dtype=torch.int64)
+
+        if _conv_reshape:
+            batch_data = batch_data.view((batch_data.shape[0],-1,batch_data.shape[1]))
 
         with torch.no_grad():
             output = _model(batch_data)
