@@ -6,7 +6,7 @@ class FECNNClassifier(nn.Module):
         super().__init__()
 
         _self.conv1 = nn.Conv1d(1, 4, 3, padding=1, device=_accel_device, dtype=_dtype)
-        _self.conv2 = nn.Conv1d(4, 8, 3, padding=1)
+        _self.conv2 = nn.Conv1d(4, 8, 3, padding=1, device=_accel_device, dtype=_dtype)
         _self.out_layer = nn.Linear(_in_features * 8, _num_classes, device=_accel_device, dtype=_dtype)
         _self.batch_norm1 = nn.BatchNorm1d(4, device=_accel_device, dtype=_dtype)
         _self.batch_norm2 = nn.BatchNorm1d(8, device=_accel_device, dtype=_dtype)

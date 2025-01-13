@@ -14,6 +14,7 @@ def run_train_forward_pytorch(_model:nn.Module,
                               _val_dataloader:DataLoader,
                               _num_epochs:int,
                               _hyperparameters:dict,
+                              _conv_reshape:bool=False,
                               _accel_device:str="cpu",
                               _dtype:torch.dtype=torch.float32) -> dict:
     train_losses = []
@@ -53,6 +54,9 @@ def run_train_forward_pytorch(_model:nn.Module,
         for train_data, train_label in _train_dataloader:
             train_data, train_label = train_data.to(_accel_device), train_label.to(device=_accel_device, dtype=torch.int64)
 
+            if _conv_reshape:
+                train_data = train_data.view((train_data.shape[0],-1,train_data.shape[1]))
+
             optimizer.zero_grad()
 
             train_output = _model(train_data)
@@ -78,6 +82,9 @@ def run_train_forward_pytorch(_model:nn.Module,
 
         for val_data, val_label in _val_dataloader:
             val_data, val_label = val_data.to(_accel_device), val_label.to(device=_accel_device, dtype=torch.int64)
+
+            if _conv_reshape:
+                val_data = val_data.view((val_data.shape[0],-1,val_data.shape[1]))
 
             val_output = _model(val_data)
             val_loss = F.cross_entropy(val_output, val_label)
